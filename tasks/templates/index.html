@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block head %}
+
+<script>
+    $(document).ready(function() {
+        $('#send_message').on('click', function() {
+            socket.emit('my event', {data: $('#message').val()});
+            $('#log').append('Sent: ' + $('#message').val() + '<br>');
+        });
+    });
+</script>
+
+{% endblock head %}
+
+{% block title %}
+Index page
+{% endblock %}
+
+{% block content %}
+
+<h3>Index Page</h3>
+
+<input type="text" id="message">
+<br>
+<button id="send_message">Send</button>
+
+{% endblock %}

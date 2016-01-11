@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready(function(){
+            namespace = '/test';
+            socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+            socket.on('connect', function() {
+                socket.emit('my event', {data: 'I\'m connected!'});
+                $('#log').append('Connected<br>');
+            });
+            socket.on('my response', function(msg) {
+                console.log('received message from backend');
+                $('#log').append('Received: ' + msg.data + '<br>');
+            });
+        });
+    </script>
+    <style>
+    p#log {
+        border: 1px solid red;
+        padding: 1em;
+    }
+    </style>
+{% block head %}{% endblock %}
+</head>
+<body>
+
+{% block content %}{% endblock %}
+<br><hr><br>
+<p id="log"></p>
+
+</body>
+</html>

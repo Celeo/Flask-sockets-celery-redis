@@ -1,0 +1,4 @@
+env/
+tasks/__pycache__/
+*.pyc
+*.data
