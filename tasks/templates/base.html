@@ -13,8 +13,8 @@
                 $('#log').append('Connected<br>');
             });
             socket.on('my response', function(msg) {
-                console.log('received message from backend');
                 $('#log').append('Received: ' + msg.data + '<br>');
+                console.log('Received: ' + msg.data);
             });
         });
     </script>
