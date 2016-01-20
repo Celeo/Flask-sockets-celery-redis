@@ -1,9 +1,12 @@
 from flask import Flask, render_template
-from flask_socketio import emit
+from flask_socketio import SocketIO, emit
 from datetime import timedelta
 from threading import Thread
-from time import sleep
-from tasks.shared import db, socketio, app_settings
+import time
+from shared import db, app_settings
+
+import eventlet
+eventlet.monkey_patch()
 
 
 app = Flask(__name__)
@@ -13,7 +16,7 @@ for k, v in app.config.items():
 app.permanent_session_lifetime = timedelta(days=14)
 db.app = app
 db.init_app(app)
-socketio.init_app(app)
+socketio = SocketIO(app, async_mode='eventlet')
 thread = None
 
 
@@ -35,7 +38,13 @@ def test_message(message):
 def background_task():
     count = 0
     while True:
-        print('Clock tick')
-        socketio.emit('my response', {'data': 'Clock tick %d' % count}, namespace='/test')
+        time.sleep(1)
         count += 1
-        sleep(10)
+        print('Clock tick')
+        socketio.emit('my response',
+                      {'data': 'Server generated event', 'count': count},
+                      namespace='/test')
+
+
+if __name__ == '__main__':
+    socketio.run(app, debug=True)

@@ -4,7 +4,7 @@
 
 <script>
     $(document).ready(function() {
-        $('#send_message').on('click', function() {
+        $('#send_message').click(function() {
             socket.emit('my event', {data: $('#message').val()});
             $('#log').append('Sent: ' + $('#message').val() + '<br>');
         });
