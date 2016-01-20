@@ -1,9 +1,10 @@
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
+from flask.ext.redis import FlaskRedis
 from datetime import timedelta
 from threading import Thread
 import time
-from shared import db, app_settings
+from tasks.shared import db, app_settings
 
 import eventlet
 eventlet.monkey_patch()
@@ -17,6 +18,7 @@ app.permanent_session_lifetime = timedelta(days=14)
 db.app = app
 db.init_app(app)
 socketio = SocketIO(app, async_mode='eventlet')
+redis_store = FlaskRedis(app)
 thread = None
 
 
