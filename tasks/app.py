@@ -2,7 +2,8 @@ from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
 from datetime import timedelta
 from celery import Celery
-from tasks.shared import db, app_settings
+# import time
+from tasks.shared import app_settings
 
 import eventlet
 eventlet.monkey_patch()
@@ -14,24 +15,17 @@ for k, v in app.config.items():
     app_settings[k] = v
 app.permanent_session_lifetime = timedelta(days=14)
 
-db.app = app
-db.init_app(app)
+socketio = SocketIO(app, async_mode='eventlet', message_queue=app.config['SOCKETIO_REDIS_URL'])
 
-socketio = SocketIO(app, async_mode='eventlet')
-
-celery = Celery(app.import_name, broker=app.config['CELERY_BROKER_URL'])
+celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
 celery.conf.update(app.config)
-TaskBase = celery.Task
 
 
-class ContextTask(TaskBase):
-    abstract = True
-
-    def __call__(self, *args, **kwargs):
-        with app.app_context():
-            return TaskBase.__call__(self, *args, **kwargs)
-
-celery.Task = ContextTask
+@celery.task()
+def background_task(url):
+    print('Celery task')
+    local_socketio = SocketIO(message_queue=url)
+    local_socketio.emit('my response', {'data': 'background task hit'}, namespace='/test')
 
 
 @app.route('/')
@@ -39,10 +33,13 @@ def index():
     return render_template('index.html')
 
 
+@app.route('/bg')
+def start_background_thread():
+    print('Starting background celery task thread call ...')
+    print(background_task.delay(app.config['SOCKETIO_REDIS_URL']))
+    return 'Started'
+
+
 @socketio.on('my event', namespace='/test')
 def test_message(message):
     emit('my response', {'data': 'Backend saw "' + message['data'] + '" from the frontend'})
-
-
-if __name__ == '__main__':
-    socketio.run(app, debug=True)

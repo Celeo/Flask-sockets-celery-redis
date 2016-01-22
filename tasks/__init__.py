@@ -1,1 +1,1 @@
-from tasks.app import app, db, socketio
+from tasks.app import app, socketio
