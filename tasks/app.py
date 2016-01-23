@@ -2,7 +2,7 @@ from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
 from datetime import timedelta
 from celery import Celery
-# import time
+import time
 from tasks.shared import app_settings
 
 import eventlet
@@ -23,9 +23,10 @@ celery.conf.update(app.config)
 
 @celery.task()
 def background_task(url):
-    print('Celery task')
     local_socketio = SocketIO(message_queue=url)
-    local_socketio.emit('my response', {'data': 'background task hit'}, namespace='/test')
+    local_socketio.emit('my response', {'data': 'background task starting ...'}, namespace='/test')
+    time.sleep(10)
+    local_socketio.emit('my response', {'data': 'background task complete!'}, namespace='/test')
 
 
 @app.route('/')
