@@ -33,8 +33,7 @@ def index():
 
 @app.route('/bg')
 def start_background_thread():
-    print('Starting background celery task thread call ...')
-    print(background_task.delay(app.config['SOCKETIO_REDIS_URL']))
+    background_task.delay(app.config['SOCKETIO_REDIS_URL'])
     return 'Started'
 
 
