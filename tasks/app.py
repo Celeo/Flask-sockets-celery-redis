@@ -3,7 +3,6 @@ from flask_socketio import SocketIO, emit
 from datetime import timedelta
 from celery import Celery
 import time
-from tasks.shared import app_settings
 
 import eventlet
 eventlet.monkey_patch()
@@ -11,8 +10,6 @@ eventlet.monkey_patch()
 
 app = Flask(__name__)
 app.config.from_pyfile('config.cfg')
-for k, v in app.config.items():
-    app_settings[k] = v
 app.permanent_session_lifetime = timedelta(days=14)
 
 socketio = SocketIO(app, async_mode='eventlet', message_queue=app.config['SOCKETIO_REDIS_URL'])
